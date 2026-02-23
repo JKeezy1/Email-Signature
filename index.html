@@ -5,6 +5,42 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Arch Public — Signature Generator</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  // ── PASSWORD CONFIG ──────────────────────────────
+  const SITE_PASSWORD = "archpublic";
+  // ─────────────────────────────────────────────────
+  (function() {
+    const stored = sessionStorage.getItem('arch_sig_auth');
+    if (stored !== SITE_PASSWORD) {
+      document.addEventListener('DOMContentLoaded', function() {
+        document.body.style.display = 'none';
+        let attempts = 0;
+        function askPassword() {
+          const input = prompt("Enter the Arch Public team password:");
+          if (input === null) {
+            document.body.innerHTML = '<div style="font-family:Arial;display:flex;align-items:center;justify-content:center;height:100vh;color:#232D67;font-size:16px;">Access denied.</div>';
+            document.body.style.display = 'flex';
+            return;
+          }
+          if (input === SITE_PASSWORD) {
+            sessionStorage.setItem('arch_sig_auth', SITE_PASSWORD);
+            document.body.style.display = '';
+          } else {
+            attempts++;
+            if (attempts >= 3) {
+              document.body.innerHTML = '<div style="font-family:Arial;display:flex;align-items:center;justify-content:center;height:100vh;color:#232D67;font-size:16px;">Too many failed attempts. Please refresh to try again.</div>';
+              document.body.style.display = 'flex';
+            } else {
+              alert("Incorrect password. " + (3 - attempts) + " attempt(s) remaining.");
+              askPassword();
+            }
+          }
+        }
+        askPassword();
+      });
+    }
+  })();
+</script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -112,6 +148,13 @@
 
   .field-hint {
     font-size: 11px; color: var(--label); margin-top: 4px;
+  }
+  .field-error {
+    font-size: 11px; color: #e53e3e; margin-top: 4px; display: none;
+  }
+  input.invalid {
+    border-color: #e53e3e !important;
+    box-shadow: 0 0 0 3px rgba(229,62,62,0.12) !important;
   }
 
   /* ── Preview Panel ── */
@@ -305,11 +348,13 @@
       </div>
       <div class="field">
         <label>Email Address</label>
-        <input type="email" id="email" value="Josh@thearchpublic.com" oninput="updatePreview()">
+        <input type="email" id="email" value="Josh@thearchpublic.com" oninput="validateEmail(this);updatePreview()">
+        <div class="field-error" id="email-err">Please enter a valid email address</div>
       </div>
       <div class="field">
         <label>Booking / Calendar Link</label>
-        <input type="url" id="bookingLink" value="#" placeholder="https://calendly.com/you" oninput="updatePreview()">
+        <input type="url" id="bookingLink" value="#" placeholder="https://calendly.com/you" oninput="validateBooking(this);updatePreview()">
+        <div class="field-error" id="bookingLink-err">Please enter a valid URL or leave as # for default</div>
       </div>
       <div class="field">
         <label>Button Text</label>
@@ -321,24 +366,29 @@
       <div class="section-label">Social Links</div>
       <div class="field">
         <label>LinkedIn URL</label>
-        <input type="url" id="linkedin" value="https://www.linkedin.com/company/archpublic/" oninput="updatePreview()">
+        <input type="url" id="linkedin" value="https://www.linkedin.com/company/archpublic/" oninput="validateUrl(this);updatePreview()">
+        <div class="field-error" id="linkedin-err">Please enter a valid URL (e.g. https://...)</div>
       </div>
       <div class="field">
         <label>X / Twitter URL</label>
-        <input type="url" id="twitter" value="https://x.com/tryarchpublic" oninput="updatePreview()">
+        <input type="url" id="twitter" value="https://x.com/tryarchpublic" oninput="validateUrl(this);updatePreview()">
+        <div class="field-error" id="twitter-err">Please enter a valid URL (e.g. https://...)</div>
       </div>
       <div class="field">
         <label>Instagram URL</label>
-        <input type="url" id="instagram" value="https://www.instagram.com/tryarchpublic/" oninput="updatePreview()">
+        <input type="url" id="instagram" value="https://www.instagram.com/tryarchpublic/" oninput="validateUrl(this);updatePreview()">
+        <div class="field-error" id="instagram-err">Please enter a valid URL (e.g. https://...)</div>
       </div>
       <div class="field">
         <label>YouTube URL</label>
-        <input type="url" id="youtube" value="https://www.youtube.com/@Arch_Public" oninput="updatePreview()">
+        <input type="url" id="youtube" value="https://www.youtube.com/@Arch_Public" oninput="validateUrl(this);updatePreview()">
+        <div class="field-error" id="youtube-err">Please enter a valid URL (e.g. https://...)</div>
       </div>
       <div class="field">
         <label>WhatsApp URL</label>
-        <input type="url" id="whatsapp" value="" placeholder="https://wa.me/15550000000" oninput="updatePreview()">
+        <input type="url" id="whatsapp" value="" placeholder="https://wa.me/15550000000" oninput="validateUrl(this);updatePreview()">
         <div class="field-hint">Leave blank to hide. Use wa.me/[number] format.</div>
+        <div class="field-error" id="whatsapp-err">Please enter a valid URL (e.g. https://...)</div>
       </div>
     </div>
 
@@ -397,13 +447,57 @@
 </div>
 
 <script>
+function isValidUrl(str) {
+  if (!str) return true; // empty = valid (blank hides the icon)
+  try { new URL(str); return true; } catch { return false; }
+}
+
+function validateUrl(input) {
+  const val = input.value.trim();
+  const err = document.getElementById(input.id + '-err');
+  if (val && !isValidUrl(val)) {
+    input.classList.add('invalid');
+    if (err) err.style.display = 'block';
+  } else {
+    input.classList.remove('invalid');
+    if (err) err.style.display = 'none';
+  }
+}
+
+function validateEmail(input) {
+  const val = input.value.trim();
+  const err = document.getElementById('email-err');
+  const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+  if (val && !ok) {
+    input.classList.add('invalid');
+    if (err) err.style.display = 'block';
+  } else {
+    input.classList.remove('invalid');
+    if (err) err.style.display = 'none';
+  }
+}
+
+function validateBooking(input) {
+  const val = input.value.trim();
+  const err = document.getElementById('bookingLink-err');
+  // Valid if empty, "#", or a proper URL
+  const ok = !val || val === '#' || isValidUrl(val);
+  if (!ok) {
+    input.classList.add('invalid');
+    if (err) err.style.display = 'block';
+  } else {
+    input.classList.remove('invalid');
+    if (err) err.style.display = 'none';
+  }
+}
+
 function generateSig() {
   const fn     = document.getElementById('firstName').value || '';
   const ln     = document.getElementById('lastName').value || '';
   const dept   = document.getElementById('department').value || '';
   const email  = document.getElementById('email').value || '';
   const phone  = document.getElementById('phone').value || '';
-  const book   = document.getElementById('bookingLink').value || '#';
+  const book   = document.getElementById('bookingLink').value || '';
   const btnText = document.getElementById('btnText').value || 'Schedule a Call With Me';
   const tag    = document.getElementById('tagline').value || '';
   const li     = document.getElementById('linkedin').value || '';
@@ -475,7 +569,7 @@ function generateSig() {
       <td width="28" style="min-width:28px;">&nbsp;</td>
 
       <!-- PHONE / WEBSITE / EMAIL / BUTTON -->
-      <td valign="bottom">
+      <td valign="${book ? 'bottom' : 'middle'}">
         <table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial;">${phoneRow}
           <!-- Website row -->
           <tr style="height:${rowH};">
@@ -499,12 +593,12 @@ function generateSig() {
               <a href="mailto:${email}" style="text-decoration:none;color:#000;font-size:14px;white-space:nowrap;">${email}</a>
             </td>
           </tr>
-          <!-- Book a Call button — aligned with icon left edge -->
-          <tr>
+          <!-- Book a Call button — only shown if booking link is filled -->
+          ${book ? `<tr>
             <td colspan="2" style="padding-top:10px;">
-              <a href="${book}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-block;background-color:#232D67;border-radius:3px;white-space:nowrap;font-family:Arial;"><span style="display:inline-block;padding:0 20px;line-height:40px;color:#ececec;font-weight:700;font-size:15px;font-family:Arial;text-decoration:none;white-space:nowrap;">${btnText}</span></a>
+              <a href="${book}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-block;background-color:#232D67;border-radius:3px;white-space:nowrap;font-family:Arial;min-width:180px;"><span style="display:inline-block;padding:0 20px;line-height:40px;color:#ececec;font-weight:700;font-size:15px;font-family:Arial;text-decoration:none;white-space:nowrap;min-width:180px;text-align:center;">${btnText}</span></a>
             </td>
-          </tr>
+          </tr>` : ''}
         </table>
       </td>
 

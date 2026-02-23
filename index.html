@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arch Public — Signature Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --arch-navy: #232D67;
+    --arch-navy-light: #2e3a82;
+    --arch-text: #0d0f1a;
+    --bg: #f2f3f8;
+    --card: #ffffff;
+    --border: #dde0ee;
+    --accent: #4a5adb;
+    --success: #2dce89;
+    --label: #6b7090;
+    --input-bg: #f8f9fc;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--arch-text);
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--arch-navy);
+    padding: 18px 40px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  header .logo-mark {
+    width: 36px; height: 36px;
+    background: white;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; color: var(--arch-navy);
+    letter-spacing: -0.5px;
+  }
+  header h1 {
+    font-size: 15px; font-weight: 600; color: white; letter-spacing: 0.02em;
+  }
+  header span {
+    font-size: 13px; color: rgba(255,255,255,0.45); font-weight: 400; margin-left: 2px;
+  }
+
+  /* ── Layout ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 0;
+    min-height: calc(100vh - 72px);
+  }
+
+  /* ── Form Panel ── */
+  .form-panel {
+    background: var(--card);
+    border-right: 1px solid var(--border);
+    padding: 32px 28px;
+    overflow-y: auto;
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--arch-navy);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--arch-navy);
+    opacity: 0.7;
+  }
+
+  .field-group { margin-bottom: 28px; }
+
+  .field { margin-bottom: 14px; }
+
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--label);
+    margin-bottom: 6px;
+  }
+
+  input[type="text"], input[type="email"], input[type="url"] {
+    width: 100%;
+    padding: 9px 12px;
+    background: var(--input-bg);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    color: var(--arch-text);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+  }
+  input[type="text"]:focus, input[type="email"]:focus, input[type="url"]:focus {
+    border-color: var(--arch-navy);
+    box-shadow: 0 0 0 3px rgba(35,45,103,0.1);
+  }
+
+  .field-hint {
+    font-size: 11px; color: var(--label); margin-top: 4px;
+  }
+
+  /* ── Preview Panel ── */
+  .preview-panel {
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .preview-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--label);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .btn-group { display: flex; gap: 10px; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+  .btn-primary {
+    background: var(--arch-navy);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--arch-navy-light); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(35,45,103,0.25); }
+  .btn-secondary {
+    background: white;
+    color: var(--arch-navy);
+    border: 1.5px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--arch-navy); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+
+  .btn svg { flex-shrink: 0; }
+
+  .btn.copied {
+    background: var(--success) !important;
+    color: white !important;
+    border-color: transparent !important;
+  }
+
+  /* ── Preview Box ── */
+  .preview-box {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px 28px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.05);
+  }
+
+  .email-chrome {
+    background: #f5f5f5;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+  .email-chrome-bar {
+    background: #e8e8e8;
+    padding: 10px 16px;
+    display: flex; align-items: center; gap: 7px;
+    border-bottom: 1px solid #d8d8d8;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #ffbd2e; }
+  .dot-g { background: #28c840; }
+  .email-subject {
+    font-size: 12px;
+    color: #666;
+    margin-left: 8px;
+    font-family: 'DM Mono', monospace;
+  }
+  .email-body {
+    background: white;
+    padding: 24px;
+  }
+  .email-placeholder {
+    font-size: 13px;
+    color: #999;
+    line-height: 1.7;
+    margin-bottom: 20px;
+    font-family: Arial, sans-serif;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+  }
+
+  #sig-preview { }
+
+  /* ── HTML Code Box ── */
+  .code-section { margin-top: 8px; }
+  .code-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--label);
+    margin-bottom: 8px;
+  }
+  .code-box {
+    background: #0d1117;
+    border-radius: 10px;
+    padding: 16px;
+    overflow-x: auto;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+  .code-box pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #7ee7c4;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--arch-navy);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(35,45,103,0.3);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 999;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">AP</div>
+  <h1>Arch Public <span>/ Email Signature Generator</span></h1>
+</header>
+
+<div class="layout">
+
+  <!-- ── Form Panel ── -->
+  <div class="form-panel">
+
+    <div class="field-group">
+      <div class="section-label">Personal Info</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div class="field">
+          <label>First Name</label>
+          <input type="text" id="firstName" value="Joshua" oninput="updatePreview()">
+        </div>
+        <div class="field">
+          <label>Last Name</label>
+          <input type="text" id="lastName" value="Kast" oninput="updatePreview()">
+        </div>
+      </div>
+      <div class="field">
+        <label>Department / Title</label>
+        <input type="text" id="department" value="DevOps Engineer" oninput="updatePreview()">
+      </div>
+      <div class="field">
+        <label>Tagline</label>
+        <input type="text" id="tagline" value="Innovate / Implement / Grow" oninput="updatePreview()">
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="section-label">Contact</div>
+      <div class="field">
+        <label>Phone Number</label>
+        <input type="text" id="phone" value="" placeholder="+1 (555) 000-0000" oninput="updatePreview()">
+      </div>
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" id="email" value="Josh@thearchpublic.com" oninput="updatePreview()">
+      </div>
+      <div class="field">
+        <label>Booking / Calendar Link</label>
+        <input type="url" id="bookingLink" value="#" placeholder="https://calendly.com/you" oninput="updatePreview()">
+      </div>
+      <div class="field">
+        <label>Button Text</label>
+        <input type="text" id="btnText" value="Schedule a Call With Me" oninput="updatePreview()">
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="section-label">Social Links</div>
+      <div class="field">
+        <label>LinkedIn URL</label>
+        <input type="url" id="linkedin" value="https://www.linkedin.com/company/archpublic/" oninput="updatePreview()">
+      </div>
+      <div class="field">
+        <label>X / Twitter URL</label>
+        <input type="url" id="twitter" value="https://x.com/tryarchpublic" oninput="updatePreview()">
+      </div>
+      <div class="field">
+        <label>Instagram URL</label>
+        <input type="url" id="instagram" value="https://www.instagram.com/tryarchpublic/" oninput="updatePreview()">
+      </div>
+      <div class="field">
+        <label>YouTube URL</label>
+        <input type="url" id="youtube" value="https://www.youtube.com/@Arch_Public" oninput="updatePreview()">
+      </div>
+      <div class="field">
+        <label>WhatsApp URL</label>
+        <input type="url" id="whatsapp" value="" placeholder="https://wa.me/15550000000" oninput="updatePreview()">
+        <div class="field-hint">Leave blank to hide. Use wa.me/[number] format.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Preview Panel ── -->
+  <div class="preview-panel">
+
+    <div class="preview-header">
+      <div class="preview-title">Live Preview</div>
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="copyHTML()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy HTML
+        </button>
+        <button class="btn btn-primary" onclick="copyRendered()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3"/><polyline points="16 13 12 17 8 13"/><line x1="12" y1="7" x2="12" y2="17"/></svg>
+          Copy for Gmail
+        </button>
+      </div>
+    </div>
+
+    <!-- Email mockup -->
+    <div class="email-chrome">
+      <div class="email-chrome-bar">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+        <span class="email-subject">New Message — Gmail</span>
+      </div>
+      <div class="email-body">
+        <div class="email-placeholder">
+          Hi there,<br><br>
+          Hope this message finds you well. I wanted to reach out and connect regarding the upcoming project. Looking forward to hearing from you soon.<br><br>
+          Best regards,
+        </div>
+        <div id="sig-preview"></div>
+      </div>
+    </div>
+
+    <!-- Code preview -->
+    <div class="code-section">
+      <div class="code-label">Generated HTML</div>
+      <div class="code-box">
+        <pre id="sig-code"></pre>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toast-msg">Copied!</span>
+</div>
+
+<script>
+function generateSig() {
+  const fn     = document.getElementById('firstName').value || '';
+  const ln     = document.getElementById('lastName').value || '';
+  const dept   = document.getElementById('department').value || '';
+  const email  = document.getElementById('email').value || '';
+  const phone  = document.getElementById('phone').value || '';
+  const book   = document.getElementById('bookingLink').value || '#';
+  const btnText = document.getElementById('btnText').value || 'Schedule a Call With Me';
+  const tag    = document.getElementById('tagline').value || '';
+  const li     = document.getElementById('linkedin').value || '';
+  const tw     = document.getElementById('twitter').value || '';
+  const ig     = document.getElementById('instagram').value || '';
+  const wa     = document.getElementById('whatsapp').value || '';
+  const yt     = document.getElementById('youtube').value || '';
+  const web    = 'www.ArchPublic.com';
+
+  // Row height: compress slightly when phone present so button doesn't shift down
+  const rowH   = phone ? '22px' : '28px';
+
+  // Phone row (only if filled)
+  const phoneRow = phone ? `
+          <tr style="height:${rowH};">
+            <td width="26" valign="middle">
+              <span style="display:inline-block;background-color:#232D67;">
+                <img src="https://cdn2.hubspot.net/hubfs/53/tools/email-signature-generator/icons/phone-icon-dark-2x.png" alt="phone" width="18" style="display:block;" referrerpolicy="no-referrer">
+              </span>
+            </td>
+            <td style="padding:0 0 0 6px;">
+              <a href="tel:${phone}" style="text-decoration:none;color:#000;font-size:14px;white-space:nowrap;">${phone}</a>
+            </td>
+          </tr>` : '';
+
+  // Social icons — only render icons with URLs provided
+  const YT_ICON = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28"><circle cx="12" cy="12" r="12" fill="#232D67"/><rect x="5" y="8" width="14" height="9" rx="2.5" ry="2.5" fill="white"/><polygon points="10,10 10,15 15.5,12.5" fill="#232D67"/></svg>');
+  const WA_ICON = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28"><circle cx="12" cy="12" r="12" fill="#232D67"/><path fill="white" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path fill="white" d="M12.004 2.003a9.997 9.997 0 0 0-8.591 15.127L2 22l4.989-1.38A9.997 9.997 0 1 0 12.004 2.003zm0 18.186a8.178 8.178 0 0 1-4.665-1.448l-.334-.198-3.463.957.935-3.41-.218-.35a8.187 8.187 0 1 1 7.745 4.449z"/></svg>');
+
+  const socialIcons = [
+    { url: li, src: 'https://cdn2.hubspot.net/hubfs/53/tools/email-signature-generator/icons/linkedin-icon-dark-2x.png', alt: 'LinkedIn' },
+    { url: tw, src: 'https://cdn2.hubspot.net/hubfs/53/tools/email-signature-generator/icons/x-icon-dark-2x.png', alt: 'X' },
+    { url: ig, src: 'https://cdn2.hubspot.net/hubfs/53/tools/email-signature-generator/icons/instagram-icon-dark-2x.png', alt: 'Instagram' },
+    { url: yt, src: YT_ICON, alt: 'YouTube' },
+    { url: wa, src: WA_ICON, alt: 'WhatsApp' },
+  ].filter(s => s.url);
+
+  const socialCells = socialIcons.map(s => `
+            <td style="padding-right:5px;">
+              <a href="${s.url}" style="display:inline-block;background-color:#232D67;border-radius:50%;line-height:0;">
+                <img src="${s.src}" alt="${s.alt}" width="28" style="display:block;border-radius:50%;" referrerpolicy="no-referrer">
+              </a>
+            </td>`).join('');
+
+  return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial;border-collapse:collapse;">
+  <tbody>
+    <tr>
+
+      <!-- LOGO -->
+      <td valign="middle" style="padding-right:16px;">
+        <img src="https://43848678.fs1.hubspotusercontent-na1.net/hubfs/43848678/Imported%20images/Arch%20Logo%20Block.png" role="presentation" width="120" style="max-width:120px;display:block;" referrerpolicy="no-referrer">
+      </td>
+
+      <!-- NAME / TITLE / TAGLINE / SOCIAL -->
+      <td valign="top" style="white-space:nowrap;">
+        <h2 style="margin:0;font-size:18px;font-family:Arial;color:#000;font-weight:600;line-height:28px;">${fn}&nbsp;${ln}</h2>
+        <div style="margin:0;font-weight:500;color:#000;font-size:14px;line-height:22px;">${dept}</div>
+        <p style="margin:0 0 10px 0;color:#000;font-size:14px;line-height:22px;white-space:nowrap;">${tag}</p>
+        <table cellpadding="0" cellspacing="0" border="0"><tr>${socialCells}</tr></table>
+      </td>
+
+      <!-- SPACER -->
+      <td width="28" style="min-width:28px;">&nbsp;</td>
+
+      <!-- VERTICAL DIVIDER -->
+      <td width="1" style="border-left:1px solid #232D67;">&nbsp;</td>
+
+      <!-- SPACER -->
+      <td width="28" style="min-width:28px;">&nbsp;</td>
+
+      <!-- PHONE / WEBSITE / EMAIL / BUTTON -->
+      <td valign="bottom">
+        <table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial;">${phoneRow}
+          <!-- Website row -->
+          <tr style="height:${rowH};">
+            <td width="26" valign="middle">
+              <span style="display:inline-block;background-color:#232D67;">
+                <img src="https://cdn2.hubspot.net/hubfs/53/tools/email-signature-generator/icons/link-icon-dark-2x.png" alt="website" width="18" style="display:block;" referrerpolicy="no-referrer">
+              </span>
+            </td>
+            <td style="padding:0 0 0 6px;">
+              <a href="//${web}" style="text-decoration:none;color:#000;font-size:14px;white-space:nowrap;">${web}</a>
+            </td>
+          </tr>
+          <!-- Email row -->
+          <tr style="height:${rowH};">
+            <td width="26" valign="middle">
+              <span style="display:inline-block;background-color:#232D67;">
+                <img src="https://cdn2.hubspot.net/hubfs/53/tools/email-signature-generator/icons/email-icon-dark-2x.png" alt="email" width="18" style="display:block;" referrerpolicy="no-referrer">
+              </span>
+            </td>
+            <td style="padding:0 0 0 6px;">
+              <a href="mailto:${email}" style="text-decoration:none;color:#000;font-size:14px;white-space:nowrap;">${email}</a>
+            </td>
+          </tr>
+          <!-- Book a Call button — aligned with icon left edge -->
+          <tr>
+            <td colspan="2" style="padding-top:10px;">
+              <a href="${book}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-block;background-color:#232D67;border-radius:3px;white-space:nowrap;font-family:Arial;"><span style="display:inline-block;padding:0 20px;line-height:40px;color:#ececec;font-weight:700;font-size:15px;font-family:Arial;text-decoration:none;white-space:nowrap;">${btnText}</span></a>
+            </td>
+          </tr>
+        </table>
+      </td>
+
+    </tr>
+    <!-- HORIZONTAL DIVIDER -->
+    <tr>
+      <td colspan="6" style="padding-top:16px;">
+        <div style="height:1px;background-color:#232D67;font-size:0;line-height:0;">&nbsp;</div>
+      </td>
+    </tr>
+  </tbody>
+</table>`;
+}
+
+function updatePreview() {
+  const html = generateSig();
+  document.getElementById('sig-preview').innerHTML = html;
+  document.getElementById('sig-code').textContent = html;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+function copyHTML() {
+  navigator.clipboard.writeText(generateSig()).then(() => showToast('HTML copied to clipboard!'));
+}
+
+function copyRendered() {
+  const sig = generateSig();
+  const blob = new Blob([`<!DOCTYPE html><html><body>${sig}</body></html>`], {type: 'text/html'});
+  const plainBlob = new Blob([''], {type: 'text/plain'});
+  const item = new ClipboardItem({'text/html': blob, 'text/plain': plainBlob});
+  navigator.clipboard.write([item]).then(() => {
+    showToast('Rendered signature copied — paste into Gmail!');
+  }).catch(() => {
+    // fallback: select and copy from preview div
+    const range = document.createRange();
+    range.selectNodeContents(document.getElementById('sig-preview'));
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    document.execCommand('copy');
+    sel.removeAllRanges();
+    showToast('Rendered signature copied — paste into Gmail!');
+  });
+}
+
+// Init
+updatePreview();
+</script>
+</body>
+</html>

@@ -523,20 +523,20 @@ function generateSig() {
             </td>
           </tr>` : '';
 
-  // Social icons — only render icons with URLs provided
-  const YT_ICON = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28"><circle cx="12" cy="12" r="12" fill="#232D67"/><rect x="5" y="8" width="14" height="9" rx="2.5" ry="2.5" fill="white"/><polygon points="10,10 10,15 15.5,12.5" fill="#232D67"/></svg>');
-  const WA_ICON = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28"><circle cx="12" cy="12" r="12" fill="#232D67"/><path fill="white" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path fill="white" d="M12.004 2.003a9.997 9.997 0 0 0-8.591 15.127L2 22l4.989-1.38A9.997 9.997 0 1 0 12.004 2.003zm0 18.186a8.178 8.178 0 0 1-4.665-1.448l-.334-.198-3.463.957.935-3.41-.218-.35a8.187 8.187 0 1 1 7.745 4.449z"/></svg>');
+  // Social icons — HubSpot CDN (navy circle style), YouTube from GitHub
+  const HUBSPOT = "https://cdn2.hubspot.net/hubfs/53/tools/email-signature-generator/icons/";
+  const YT_ICON = "https://raw.githubusercontent.com/jkeezy1/Email-Signature/main/yt-icon.png";
 
   const socialIcons = [
-    { url: li, src: 'https://cdn2.hubspot.net/hubfs/53/tools/email-signature-generator/icons/linkedin-icon-dark-2x.png', alt: 'LinkedIn' },
-    { url: tw, src: 'https://cdn2.hubspot.net/hubfs/53/tools/email-signature-generator/icons/x-icon-dark-2x.png', alt: 'X' },
-    { url: ig, src: 'https://cdn2.hubspot.net/hubfs/53/tools/email-signature-generator/icons/instagram-icon-dark-2x.png', alt: 'Instagram' },
+    { url: li, src: HUBSPOT + 'linkedin-icon-dark-2x.png', alt: 'LinkedIn' },
+    { url: tw, src: HUBSPOT + 'x-icon-dark-2x.png', alt: 'X' },
+    { url: ig, src: HUBSPOT + 'instagram-icon-dark-2x.png', alt: 'Instagram' },
     { url: yt, src: YT_ICON, alt: 'YouTube' },
-    { url: wa, src: WA_ICON, alt: 'WhatsApp' },
+    { url: wa, src: HUBSPOT + 'whatsapp-icon-dark-2x.png', alt: 'WhatsApp' },
   ].filter(s => s.url);
 
   const socialCells = socialIcons.map(s => `
-            <td style="padding-right:5px;">
+            <td style="padding-right:6px;">
               <a href="${s.url}" style="display:inline-block;background-color:#232D67;border-radius:50%;line-height:0;">
                 <img src="${s.src}" alt="${s.alt}" width="28" style="display:block;border-radius:50%;" referrerpolicy="no-referrer">
               </a>

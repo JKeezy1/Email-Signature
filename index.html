@@ -358,7 +358,7 @@
       </div>
       <div class="field">
         <label>Button Text</label>
-        <input type="text" id="btnText" value="Schedule a Call With Me" oninput="updatePreview()">
+        <input type="text" id="btnText" value="Book a Call with Me" oninput="updatePreview()">
       </div>
     </div>
 
@@ -498,7 +498,7 @@ function generateSig() {
   const email  = document.getElementById('email').value || '';
   const phone  = document.getElementById('phone').value || '';
   const book   = document.getElementById('bookingLink').value || '';
-  const btnText = document.getElementById('btnText').value || 'Schedule a Call With Me';
+  const btnText = document.getElementById('btnText').value || 'Book a Call With Me';
   const tag    = document.getElementById('tagline').value || '';
   const li     = document.getElementById('linkedin').value || '';
   const tw     = document.getElementById('twitter').value || '';
@@ -596,7 +596,7 @@ function generateSig() {
           <!-- Book a Call button — only shown if booking link is filled -->
           ${book ? `<tr>
             <td colspan="2" style="padding-top:10px;">
-              <a href="${book}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-block;background-color:#232D67;border-radius:3px;white-space:nowrap;font-family:Arial;min-width:180px;"><span style="display:inline-block;padding:0 20px;line-height:40px;color:#ececec;font-weight:700;font-size:15px;font-family:Arial;text-decoration:none;white-space:nowrap;min-width:180px;text-align:center;">${btnText}</span></a>
+              <a href="${book}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-block;background-color:#232D67;border-radius:3px;white-space:nowrap;font-family:Arial;min-width:200px;"><span style="display:inline-block;padding:0 20px;line-height:40px;color:#ececec;font-weight:700;font-size:18px;font-family:Arial;text-decoration:none;white-space:nowrap;min-width:180px;text-align:center;">${btnText}</span></a>
             </td>
           </tr>` : ''}
         </table>
